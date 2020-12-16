@@ -8,15 +8,13 @@ package org.jetbrains.kotlin.ir.backend.js.lower.calls
 import org.jetbrains.kotlin.ir.UNDEFINED_OFFSET
 import org.jetbrains.kotlin.ir.backend.js.JsIrBackendContext
 import org.jetbrains.kotlin.ir.backend.js.ir.JsIrBuilder
-import org.jetbrains.kotlin.ir.builders.IrBuilder
 import org.jetbrains.kotlin.ir.expressions.IrExpression
 import org.jetbrains.kotlin.ir.expressions.IrFunctionAccessExpression
-import org.jetbrains.kotlin.ir.expressions.impl.IrCallImpl
 import org.jetbrains.kotlin.ir.expressions.impl.IrCompositeImpl
 import org.jetbrains.kotlin.ir.expressions.impl.IrConstImpl
 import org.jetbrains.kotlin.ir.types.classOrNull
-import org.jetbrains.kotlin.ir.util.*
-import org.jetbrains.kotlin.name.Name
+import org.jetbrains.kotlin.ir.util.getArgumentsWithIr
+import org.jetbrains.kotlin.ir.util.render
 
 
 class ReplaceCallsWithInvalidTypeArgumentForReifiedParameters(val context: JsIrBackendContext) : CallsTransformer {
@@ -25,11 +23,6 @@ class ReplaceCallsWithInvalidTypeArgumentForReifiedParameters(val context: JsIrB
 
         val function = call.symbol.owner
 
-        // Apply only to functions from kotlin package.
-        // For example, user's code with such error can work if it doesn't use this type parameter at all, or use in safe context.
-        /// TODO test
-        if (function.fqNameWhenAvailable?.startsWith(Name.identifier("kotlin")) != true) return call
-
         for (typeParameter in function.typeParameters) {
             if (!typeParameter.isReified) continue
             val typeArgument = call.getTypeArgument(typeParameter.index)
@@ -37,30 +30,17 @@ class ReplaceCallsWithInvalidTypeArgumentForReifiedParameters(val context: JsIrB
             if (typeArgument?.classOrNull == null) {
                 val args = call.getArgumentsWithIr().map { it.second }
 
-                JsIrBuilder.buildCall(context.errorCodeSymbol!!).apply {
+                val callErrorCode = JsIrBuilder.buildCall(context.errorCodeSymbol!!).apply {
                     putValueArgument(
                         0,
                         IrConstImpl.string(
                             UNDEFINED_OFFSET,
                             UNDEFINED_OFFSET,
                             context.irBuiltIns.stringType,
-                            "Invalid type argument for reified type parameter, " + typeArgument?.render()
+                            "Invalid type argument (${typeArgument?.render()}) for reified type parameter (${typeParameter.render()})"
                         )
                     )
                 }
-                val callErrorCode =
-                    IrCallImpl(UNDEFINED_OFFSET, UNDEFINED_OFFSET, context.irBuiltIns.nothingType, context.errorCodeSymbol!!, 0, 1)
-                        .apply {
-                            putValueArgument(
-                                0,
-                                IrConstImpl.string(
-                                    UNDEFINED_OFFSET,
-                                    UNDEFINED_OFFSET,
-                                    context.irBuiltIns.stringType,
-                                    "Invalid type argument for reified type parameter, " + typeArgument?.render()
-                                )
-                            )
-                        }
 
                 if (args.isEmpty()) return callErrorCode
 
