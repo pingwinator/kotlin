@@ -5,4 +5,4 @@
 
 package kotlin.js
 
-private inline fun <reified T : Any> jsClass(): JsClass<T> = throw NotImplementedError("Implemented as intrinsic")
+internal external fun <T : Any> jsClass(): JsClass<T>
