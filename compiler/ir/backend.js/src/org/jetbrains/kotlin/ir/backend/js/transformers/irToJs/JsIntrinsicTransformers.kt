@@ -93,7 +93,6 @@ class JsIntrinsicTransformers(backendContext: JsIrBackendContext) {
             add(intrinsics.jsClass) { call, context ->
                 val typeArgument = call.getTypeArgument(0)
                 val classSymbol = typeArgument?.classOrNull
-                // TODO: generate throwing exception instead by default or under a flag
                     ?: error("Type argument of jsClass must be statically known class, but " + typeArgument?.render())
 
                 val klass = classSymbol.owner
