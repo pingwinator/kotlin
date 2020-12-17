@@ -144,7 +144,6 @@ fun createContainerForBodyResolve(
 
     useImpl<BodyResolver>()
     useInstance(moduleStructureOracle)
-    useImpl<MainFunctionDetector.Factory.Ordinary>()
 }
 
 fun createContainerForLazyBodyResolve(
@@ -204,7 +203,6 @@ fun createContainerForLazyLocalClassifierAnalyzer(
     useImpl<DeclarationScopeProviderForLocalClassifierAnalyzer>()
     useImpl<LocalLazyDeclarationResolver>()
 
-    useImpl<MainFunctionDetector.Factory.Ordinary>()
 
     useInstance(statementFilter)
 }
@@ -224,7 +222,6 @@ fun createContainerForLazyResolve(
 
     useInstance(declarationProviderFactory)
 
-    useImpl<MainFunctionDetector.Factory.Ordinary>()
 
     targetEnvironment.configure(this)
 

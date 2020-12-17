@@ -68,7 +68,7 @@ fun createContainerForLazyResolveWithJava(
     useBuiltInsProvider: Boolean,
     configureJavaClassFinder: (StorageComponentContainer.() -> Unit)? = null,
     javaClassTracker: JavaClassesTracker? = null,
-    implicitsResolutionFilter: ImplicitsExtensionsResolutionFilter? = null,
+    implicitsResolutionFilter: ImplicitsExtensionsResolutionFilter? = null
 ): StorageComponentContainer = createContainer("LazyResolveWithJava", JvmPlatformAnalyzerServices) {
     configureModule(moduleContext, jvmPlatform, JvmPlatformAnalyzerServices, bindingTrace, languageVersionSettings)
 
@@ -88,8 +88,6 @@ fun createContainerForLazyResolveWithJava(
     )
 
     targetEnvironment.configure(this)
-
-    useImpl<MainFunctionDetector.Factory.Ordinary>()
 
 }.apply {
     initializeJavaSpecificComponents(bindingTrace)

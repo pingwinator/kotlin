@@ -19,7 +19,8 @@ internal class IdeMainFunctionDetectorFactory : MainFunctionDetector.Factory {
     ): MainFunctionDetector {
         return MainFunctionDetector(languageVersionSettings) { function ->
             function.resolveToDescriptorIfAny(bodyResolveMode = BodyResolveMode.FULL)
-                ?: throw KotlinExceptionWithAttachments("DA BLYAT")
+                ?: throw KotlinExceptionWithAttachments("No descriptor resolved for $function")
+                    .withAttachment("function.text", function.text)
         }
     }
 }
